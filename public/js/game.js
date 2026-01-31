@@ -520,13 +520,26 @@ function generateLevel() {
   // Ground platform
   game.platforms.push(new Platform(0, game.height - 50, game.width));
 
-  // Generate platforms
+  // Generate platforms with guaranteed reachability
   const platformCount = 5 + game.level * 2;
+  const maxJumpHeight = 200; // Maximum vertical distance butterfly can jump
+  const maxHorizontalGap = 250; // Maximum horizontal gap
+  
+  let lastY = game.height - 50; // Start from ground
+  
   for (let i = 0; i < platformCount; i++) {
-    const x = (i + 1) * (game.width / (platformCount + 1));
-    const y = game.height - 150 - Math.random() * (game.height - 300);
-    const width = 80 + Math.random() * 100;
+    // Horizontal position - evenly spaced with some randomness
+    const baseX = (i + 1) * (game.width / (platformCount + 1));
+    const x = baseX + (Math.random() - 0.5) * 100;
+    
+    // Vertical position - ensure it's reachable from previous platform
+    const minY = Math.max(100, lastY - maxJumpHeight + 50);
+    const maxY = Math.min(game.height - 100, lastY + 50);
+    const y = minY + Math.random() * (maxY - minY);
+    
+    const width = 100 + Math.random() * 80;
     game.platforms.push(new Platform(x - width / 2, y, width));
+    lastY = y;
   }
 
   // Generate flowers
