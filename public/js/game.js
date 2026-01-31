@@ -1,7 +1,7 @@
 // Game Configuration
 const CONFIG = {
   gravity: 0.6,
-  jumpStrength: -12,
+  jumpStrength: -15.6,  // Increased by 30% (was -12)
   moveSpeed: 5,
   playerSize: 40,
   platformHeight: 20,
