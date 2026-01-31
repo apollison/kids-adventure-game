@@ -89,6 +89,9 @@ class Player {
     this.x += this.velocityX;
     this.y += this.velocityY;
 
+    // Reset onGround - will be set by collision checks
+    this.onGround = false;
+
     // Collision with ground
     if (this.y + this.height >= game.height - 50) {
       this.y = game.height - 50 - this.height;
@@ -97,7 +100,6 @@ class Player {
     }
 
     // Platform collision
-    this.onGround = false;
     game.platforms.forEach(platform => {
       if (this.collidesWith(platform) && this.velocityY > 0) {
         if (this.y + this.height - this.velocityY <= platform.y) {
