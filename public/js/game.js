@@ -395,6 +395,56 @@ function setupEventListeners() {
     game.keys[e.key] = false;
   });
 
+  // Touch controls
+  const leftBtn = document.getElementById('btn-left');
+  const rightBtn = document.getElementById('btn-right');
+  const jumpBtn = document.getElementById('btn-jump');
+
+  // Left button
+  leftBtn.addEventListener('touchstart', (e) => {
+    e.preventDefault();
+    game.keys['ArrowLeft'] = true;
+  });
+  leftBtn.addEventListener('touchend', (e) => {
+    e.preventDefault();
+    game.keys['ArrowLeft'] = false;
+  });
+
+  // Right button
+  rightBtn.addEventListener('touchstart', (e) => {
+    e.preventDefault();
+    game.keys['ArrowRight'] = true;
+  });
+  rightBtn.addEventListener('touchend', (e) => {
+    e.preventDefault();
+    game.keys['ArrowRight'] = false;
+  });
+
+  // Jump button
+  jumpBtn.addEventListener('touchstart', (e) => {
+    e.preventDefault();
+    game.keys[' '] = true;
+  });
+  jumpBtn.addEventListener('touchend', (e) => {
+    e.preventDefault();
+    game.keys[' '] = false;
+  });
+
+  // Also support mouse for testing on desktop
+  leftBtn.addEventListener('mousedown', () => game.keys['ArrowLeft'] = true);
+  leftBtn.addEventListener('mouseup', () => game.keys['ArrowLeft'] = false);
+  rightBtn.addEventListener('mousedown', () => game.keys['ArrowRight'] = true);
+  rightBtn.addEventListener('mouseup', () => game.keys['ArrowRight'] = false);
+  jumpBtn.addEventListener('mousedown', () => game.keys[' '] = true);
+  jumpBtn.addEventListener('mouseup', () => game.keys[' '] = false);
+
+  // Prevent touch dragging/scrolling
+  document.body.addEventListener('touchmove', (e) => {
+    if (game.gameActive) {
+      e.preventDefault();
+    }
+  }, { passive: false });
+
   // Select first character by default
   document.querySelector('.character-btn').click();
 }
