@@ -7,7 +7,8 @@ const CONFIG = {
   platformHeight: 20,
   flowerSize: 30,
   cloudSize: 60,
-  obstacleSize: 35
+  obstacleSize: 35,
+  groundOffset: 100  // Extra padding at bottom for Amazon bar
 };
 
 // Game State
@@ -81,7 +82,7 @@ class Player {
     }
 
     // Jumping (keyboard or touch tap)
-    const jumpKey = game.keys[' '] || game.keys['ArrowUp'] || game.keys['w'] || game.keys['W'] || game.keys['Spacebar'];
+    const jumpKey = game.keys[' '] || game.keys['Space'] || game.keys['ArrowUp'] || game.keys['w'] || game.keys['W'];
     if (jumpKey && this.onGround) {
       this.velocityY = CONFIG.jumpStrength;
       this.onGround = false;
@@ -95,8 +96,8 @@ class Player {
     this.y += this.velocityY;
 
     // Collision with ground
-    if (this.y + this.height >= game.height - 50) {
-      this.y = game.height - 50 - this.height;
+    if (this.y + this.height >= game.height - CONFIG.groundOffset) {
+      this.y = game.height - CONFIG.groundOffset - this.height;
       this.velocityY = 0;
       this.onGround = true;
     }
@@ -119,9 +120,9 @@ class Player {
   }
 
   collidesWith(obj) {
-    return this.x < obj.x + obj.width &&
+    return this.x < obj.x + obj.size &&
            this.x + this.width > obj.x &&
-           this.y < obj.y + obj.height &&
+           this.y < obj.y + obj.size &&
            this.y + this.height > obj.y;
   }
 
@@ -380,8 +381,8 @@ function resizeCanvas() {
   
   // Reposition player if off screen
   if (game.player) {
-    if (game.player.y + game.player.height > game.height - 50) {
-      game.player.y = game.height - 200;
+    if (game.player.y + game.player.height > game.height - CONFIG.groundOffset) {
+      game.player.y = game.height - CONFIG.groundOffset - game.player.height - 20;
     }
   }
 }
@@ -422,15 +423,25 @@ function setupEventListeners() {
 
   // Keyboard controls
   window.addEventListener('keydown', e => {
+    // Store the key
     game.keys[e.key] = true;
+    // Also store keyCode for spacebar (cross-browser compatibility)
+    if (e.keyCode === 32) {
+      game.keys[' '] = true;
+      game.keys['Space'] = true;
+    }
     // Prevent space bar from scrolling page
-    if (e.key === ' ' || e.key === 'ArrowUp' || e.key === 'ArrowDown') {
+    if (e.key === ' ' || e.keyCode === 32 || e.key === 'ArrowUp' || e.key === 'ArrowDown') {
       e.preventDefault();
     }
   });
 
   window.addEventListener('keyup', e => {
     game.keys[e.key] = false;
+    if (e.keyCode === 32) {
+      game.keys[' '] = false;
+      game.keys['Space'] = false;
+    }
   });
 
   // Touch controls on canvas
@@ -537,14 +548,14 @@ function generateLevel() {
   game.obstacles = [];
   game.particles = [];
 
-  // Ground platform
-  game.platforms.push(new Platform(0, game.height - 50, game.width));
+  // Ground platform (higher up for Amazon bar)
+  game.platforms.push(new Platform(0, game.height - CONFIG.groundOffset, game.width));
 
   // Generate platforms
   const platformCount = 5 + game.level * 2;
   for (let i = 0; i < platformCount; i++) {
     const x = (i + 1) * (game.width / (platformCount + 1));
-    const y = game.height - 150 - Math.random() * (game.height - 300);
+    const y = game.height - CONFIG.groundOffset - 100 - Math.random() * (game.height - CONFIG.groundOffset - 250);
     const width = 80 + Math.random() * 100;
     game.platforms.push(new Platform(x - width / 2, y, width));
   }
@@ -609,6 +620,23 @@ function gameLoop() {
 
   // Update and draw platforms
   game.platforms.forEach(platform => platform.draw(game.ctx));
+
+  // Draw decorative ground border at bottom
+  const groundY = game.height - CONFIG.groundOffset;
+  const gradient = game.ctx.createLinearGradient(0, groundY, 0, game.height);
+  gradient.addColorStop(0, '#8BC34A');
+  gradient.addColorStop(0.3, '#689F38');
+  gradient.addColorStop(1, '#558B2F');
+  game.ctx.fillStyle = gradient;
+  game.ctx.fillRect(0, groundY, game.width, CONFIG.groundOffset);
+  
+  // Add flowers/grass decoration on ground
+  game.ctx.fillStyle = '#4CAF50';
+  for (let i = 0; i < game.width; i += 30) {
+    game.ctx.fillRect(i, groundY - 10, 4, 10);
+    game.ctx.fillRect(i + 10, groundY - 8, 3, 8);
+    game.ctx.fillRect(i + 20, groundY - 12, 4, 12);
+  }
 
   // Update and draw flowers
   game.flowers.forEach(flower => flower.draw(game.ctx));
