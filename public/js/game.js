@@ -29,7 +29,14 @@ const game = {
   obstacles: [],
   particles: [],
   keys: {},
-  timer: null
+  timer: null,
+  // Touch controls
+  touchActive: false,
+  touchStartX: 0,
+  touchStartY: 0,
+  lastTouchX: 0,
+  lastTouchY: 0,
+  isDragging: false
 };
 
 // Player class
@@ -47,8 +54,23 @@ class Player {
   }
 
   update() {
-    // Horizontal movement
-    if (game.keys['ArrowLeft'] || game.keys['a'] || game.keys['A']) {
+    // Touch/drag controls
+    if (game.isDragging && game.touchActive) {
+      const dragDeltaX = game.lastTouchX - game.touchStartX;
+      
+      // Move based on drag direction
+      if (Math.abs(dragDeltaX) > 5) { // Dead zone
+        if (dragDeltaX < 0) {
+          this.velocityX = -CONFIG.moveSpeed;
+          this.facing = -1;
+        } else {
+          this.velocityX = CONFIG.moveSpeed;
+          this.facing = 1;
+        }
+      }
+    } 
+    // Keyboard controls (fallback)
+    else if (game.keys['ArrowLeft'] || game.keys['a'] || game.keys['A']) {
       this.velocityX = -CONFIG.moveSpeed;
       this.facing = -1;
     } else if (game.keys['ArrowRight'] || game.keys['d'] || game.keys['D']) {
@@ -58,7 +80,7 @@ class Player {
       this.velocityX *= 0.8; // Friction
     }
 
-    // Jumping
+    // Jumping (keyboard or touch tap)
     if ((game.keys[' '] || game.keys['ArrowUp'] || game.keys['w'] || game.keys['W']) && this.onGround) {
       this.velocityY = CONFIG.jumpStrength;
       this.onGround = false;
@@ -395,50 +417,12 @@ function setupEventListeners() {
     game.keys[e.key] = false;
   });
 
-  // Touch controls
-  const leftBtn = document.getElementById('btn-left');
-  const rightBtn = document.getElementById('btn-right');
-  const jumpBtn = document.getElementById('btn-jump');
+  // Touch controls on canvas
+  game.canvas.addEventListener('touchstart', handleTouchStart, { passive: false });
+  game.canvas.addEventListener('touchmove', handleTouchMove, { passive: false });
+  game.canvas.addEventListener('touchend', handleTouchEnd, { passive: false });
 
-  // Left button
-  leftBtn.addEventListener('touchstart', (e) => {
-    e.preventDefault();
-    game.keys['ArrowLeft'] = true;
-  });
-  leftBtn.addEventListener('touchend', (e) => {
-    e.preventDefault();
-    game.keys['ArrowLeft'] = false;
-  });
-
-  // Right button
-  rightBtn.addEventListener('touchstart', (e) => {
-    e.preventDefault();
-    game.keys['ArrowRight'] = true;
-  });
-  rightBtn.addEventListener('touchend', (e) => {
-    e.preventDefault();
-    game.keys['ArrowRight'] = false;
-  });
-
-  // Jump button
-  jumpBtn.addEventListener('touchstart', (e) => {
-    e.preventDefault();
-    game.keys[' '] = true;
-  });
-  jumpBtn.addEventListener('touchend', (e) => {
-    e.preventDefault();
-    game.keys[' '] = false;
-  });
-
-  // Also support mouse for testing on desktop
-  leftBtn.addEventListener('mousedown', () => game.keys['ArrowLeft'] = true);
-  leftBtn.addEventListener('mouseup', () => game.keys['ArrowLeft'] = false);
-  rightBtn.addEventListener('mousedown', () => game.keys['ArrowRight'] = true);
-  rightBtn.addEventListener('mouseup', () => game.keys['ArrowRight'] = false);
-  jumpBtn.addEventListener('mousedown', () => game.keys[' '] = true);
-  jumpBtn.addEventListener('mouseup', () => game.keys[' '] = false);
-
-  // Prevent touch dragging/scrolling
+  // Prevent page scrolling when game is active
   document.body.addEventListener('touchmove', (e) => {
     if (game.gameActive) {
       e.preventDefault();
@@ -447,6 +431,54 @@ function setupEventListeners() {
 
   // Select first character by default
   document.querySelector('.character-btn').click();
+}
+
+function handleTouchStart(e) {
+  e.preventDefault();
+  if (!game.gameActive || !game.player) return;
+
+  const touch = e.touches[0];
+  const rect = game.canvas.getBoundingClientRect();
+  const touchX = touch.clientX - rect.left;
+  const touchY = touch.clientY - rect.top;
+
+  // Check if touching the butterfly (with larger hit area for kids)
+  const hitRadius = 60; // Generous hit area
+  const dx = touchX - (game.player.x + game.player.width / 2);
+  const dy = touchY - (game.player.y + game.player.height / 2);
+  const distance = Math.sqrt(dx * dx + dy * dy);
+
+  if (distance < hitRadius) {
+    // Dragging butterfly
+    game.isDragging = true;
+    game.touchActive = true;
+    game.touchStartX = touchX;
+    game.touchStartY = touchY;
+    game.lastTouchX = touchX;
+    game.lastTouchY = touchY;
+  } else {
+    // Tap anywhere else = jump
+    if (game.player.onGround) {
+      game.player.velocityY = CONFIG.jumpStrength;
+      game.player.onGround = false;
+    }
+  }
+}
+
+function handleTouchMove(e) {
+  e.preventDefault();
+  if (!game.gameActive || !game.isDragging) return;
+
+  const touch = e.touches[0];
+  const rect = game.canvas.getBoundingClientRect();
+  game.lastTouchX = touch.clientX - rect.left;
+  game.lastTouchY = touch.clientY - rect.top;
+}
+
+function handleTouchEnd(e) {
+  e.preventDefault();
+  game.isDragging = false;
+  game.touchActive = false;
 }
 
 function startGame() {
