@@ -7,8 +7,7 @@ const CONFIG = {
   platformHeight: 20,
   flowerSize: 30,
   cloudSize: 60,
-  obstacleSize: 35,
-  groundOffset: 100  // Extra padding at bottom for Amazon bar
+  obstacleSize: 35
 };
 
 // Game State
@@ -31,12 +30,9 @@ const game = {
   particles: [],
   keys: {},
   timer: null,
-  // Touch controls
   touchActive: false,
   touchStartX: 0,
-  touchStartY: 0,
   lastTouchX: 0,
-  lastTouchY: 0,
   isDragging: false
 };
 
@@ -59,8 +55,7 @@ class Player {
     if (game.isDragging && game.touchActive) {
       const dragDeltaX = game.lastTouchX - game.touchStartX;
       
-      // Move based on drag direction
-      if (Math.abs(dragDeltaX) > 5) { // Dead zone
+      if (Math.abs(dragDeltaX) > 5) {
         if (dragDeltaX < 0) {
           this.velocityX = -CONFIG.moveSpeed;
           this.facing = -1;
@@ -70,7 +65,7 @@ class Player {
         }
       }
     } 
-    // Keyboard controls (fallback)
+    // Keyboard controls
     else if (game.keys['ArrowLeft'] || game.keys['a'] || game.keys['A']) {
       this.velocityX = -CONFIG.moveSpeed;
       this.facing = -1;
@@ -81,9 +76,8 @@ class Player {
       this.velocityX *= 0.8; // Friction
     }
 
-    // Jumping (keyboard or touch tap)
-    const jumpKey = game.keys[' '] || game.keys['Space'] || game.keys['ArrowUp'] || game.keys['w'] || game.keys['W'];
-    if (jumpKey && this.onGround) {
+    // Jumping
+    if ((game.keys[' '] || game.keys['ArrowUp'] || game.keys['w'] || game.keys['W']) && this.onGround) {
       this.velocityY = CONFIG.jumpStrength;
       this.onGround = false;
     }
@@ -96,8 +90,8 @@ class Player {
     this.y += this.velocityY;
 
     // Collision with ground
-    if (this.y + this.height >= game.height - CONFIG.groundOffset) {
-      this.y = game.height - CONFIG.groundOffset - this.height;
+    if (this.y + this.height >= game.height - 50) {
+      this.y = game.height - 50 - this.height;
       this.velocityY = 0;
       this.onGround = true;
     }
@@ -120,9 +114,9 @@ class Player {
   }
 
   collidesWith(obj) {
-    return this.x < obj.x + obj.size &&
+    return this.x < obj.x + obj.width &&
            this.x + this.width > obj.x &&
-           this.y < obj.y + obj.size &&
+           this.y < obj.y + obj.height &&
            this.y + this.height > obj.y;
   }
 
@@ -369,22 +363,10 @@ function init() {
 }
 
 function resizeCanvas() {
-  const hud = document.getElementById('hud');
-  const hint = document.getElementById('controls-hint');
-  const hudHeight = hud ? hud.offsetHeight : 0;
-  const hintHeight = hint ? hint.offsetHeight : 0;
-  
   game.canvas.width = window.innerWidth;
-  game.canvas.height = window.innerHeight - hudHeight - hintHeight;
+  game.canvas.height = window.innerHeight - 140; // Account for HUD and controls
   game.width = game.canvas.width;
   game.height = game.canvas.height;
-  
-  // Reposition player if off screen
-  if (game.player) {
-    if (game.player.y + game.player.height > game.height - CONFIG.groundOffset) {
-      game.player.y = game.height - CONFIG.groundOffset - game.player.height - 20;
-    }
-  }
 }
 
 function setupEventListeners() {
@@ -398,9 +380,7 @@ function setupEventListeners() {
   });
 
   // Start game
-  document.getElementById('start-btn').addEventListener('click', () => {
-    startGame();
-  });
+  document.getElementById('start-btn').addEventListener('click', startGame);
   
   // Next level
   document.getElementById('next-level-btn').addEventListener('click', () => {
@@ -415,9 +395,7 @@ function setupEventListeners() {
   });
 
   // Retry
-  document.getElementById('retry-btn').addEventListener('click', () => {
-    startGame();
-  });
+  document.getElementById('retry-btn').addEventListener('click', startGame);
 
   // Menu
   document.getElementById('menu-btn').addEventListener('click', () => {
@@ -427,28 +405,15 @@ function setupEventListeners() {
 
   // Keyboard controls
   window.addEventListener('keydown', e => {
-    // Store the key
     game.keys[e.key] = true;
-    // Also store keyCode for spacebar (cross-browser compatibility)
-    if (e.keyCode === 32) {
-      game.keys[' '] = true;
-      game.keys['Space'] = true;
-    }
-    // Prevent space bar from scrolling page
-    if (e.key === ' ' || e.keyCode === 32 || e.key === 'ArrowUp' || e.key === 'ArrowDown') {
-      e.preventDefault();
-    }
+    if (e.key === ' ') e.preventDefault();
   });
 
   window.addEventListener('keyup', e => {
     game.keys[e.key] = false;
-    if (e.keyCode === 32) {
-      game.keys[' '] = false;
-      game.keys['Space'] = false;
-    }
   });
 
-  // Touch controls on canvas (only during gameplay)
+  // Touch controls on canvas
   game.canvas.addEventListener('touchstart', handleTouchStart, { passive: false });
   game.canvas.addEventListener('touchmove', handleTouchMove, { passive: false });
   game.canvas.addEventListener('touchend', handleTouchEnd, { passive: false });
@@ -468,8 +433,8 @@ function handleTouchStart(e) {
   const touchX = (touch.clientX - rect.left) * scaleX;
   const touchY = (touch.clientY - rect.top) * scaleY;
 
-  // Check if touching the butterfly (with larger hit area for kids)
-  const hitRadius = 80; // Very generous hit area
+  // Check if touching the butterfly
+  const hitRadius = 80;
   const dx = touchX - (game.player.x + game.player.width / 2);
   const dy = touchY - (game.player.y + game.player.height / 2);
   const distance = Math.sqrt(dx * dx + dy * dy);
@@ -479,9 +444,7 @@ function handleTouchStart(e) {
     game.isDragging = true;
     game.touchActive = true;
     game.touchStartX = touchX;
-    game.touchStartY = touchY;
     game.lastTouchX = touchX;
-    game.lastTouchY = touchY;
   } else {
     // Tap anywhere else = jump
     if (game.player.onGround) {
@@ -498,9 +461,7 @@ function handleTouchMove(e) {
   const touch = e.touches[0];
   const rect = game.canvas.getBoundingClientRect();
   const scaleX = game.canvas.width / rect.width;
-  const scaleY = game.canvas.height / rect.height;
   game.lastTouchX = (touch.clientX - rect.left) * scaleX;
-  game.lastTouchY = (touch.clientY - rect.top) * scaleY;
 }
 
 function handleTouchEnd(e) {
@@ -545,14 +506,14 @@ function generateLevel() {
   game.obstacles = [];
   game.particles = [];
 
-  // Ground platform (higher up for Amazon bar)
-  game.platforms.push(new Platform(0, game.height - CONFIG.groundOffset, game.width));
+  // Ground platform
+  game.platforms.push(new Platform(0, game.height - 50, game.width));
 
   // Generate platforms
   const platformCount = 5 + game.level * 2;
   for (let i = 0; i < platformCount; i++) {
     const x = (i + 1) * (game.width / (platformCount + 1));
-    const y = game.height - CONFIG.groundOffset - 100 - Math.random() * (game.height - CONFIG.groundOffset - 250);
+    const y = game.height - 150 - Math.random() * (game.height - 300);
     const width = 80 + Math.random() * 100;
     game.platforms.push(new Platform(x - width / 2, y, width));
   }
@@ -617,23 +578,6 @@ function gameLoop() {
 
   // Update and draw platforms
   game.platforms.forEach(platform => platform.draw(game.ctx));
-
-  // Draw decorative ground border at bottom
-  const groundY = game.height - CONFIG.groundOffset;
-  const gradient = game.ctx.createLinearGradient(0, groundY, 0, game.height);
-  gradient.addColorStop(0, '#8BC34A');
-  gradient.addColorStop(0.3, '#689F38');
-  gradient.addColorStop(1, '#558B2F');
-  game.ctx.fillStyle = gradient;
-  game.ctx.fillRect(0, groundY, game.width, CONFIG.groundOffset);
-  
-  // Add flowers/grass decoration on ground
-  game.ctx.fillStyle = '#4CAF50';
-  for (let i = 0; i < game.width; i += 30) {
-    game.ctx.fillRect(i, groundY - 10, 4, 10);
-    game.ctx.fillRect(i + 10, groundY - 8, 3, 8);
-    game.ctx.fillRect(i + 20, groundY - 12, 4, 12);
-  }
 
   // Update and draw flowers
   game.flowers.forEach(flower => flower.draw(game.ctx));
