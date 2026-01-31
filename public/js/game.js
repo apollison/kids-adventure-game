@@ -390,33 +390,28 @@ function resizeCanvas() {
 function setupEventListeners() {
   // Character selection
   document.querySelectorAll('.character-btn').forEach(btn => {
-    const selectChar = () => {
+    const selectChar = (e) => {
+      e.preventDefault();
+      e.stopPropagation();
       document.querySelectorAll('.character-btn').forEach(b => b.classList.remove('selected'));
       btn.classList.add('selected');
       game.selectedColor = btn.dataset.color;
     };
     btn.addEventListener('click', selectChar);
-    btn.addEventListener('touchend', (e) => {
-      e.preventDefault();
-      selectChar();
-    });
   });
 
-  // Start game
+  // Start game - single unified handler
   const startBtn = document.getElementById('start-btn');
-  startBtn.addEventListener('click', startGame);
-  startBtn.addEventListener('touchend', (e) => {
+  const handleStart = (e) => {
     e.preventDefault();
+    e.stopPropagation();
     startGame();
-  });
+  };
+  startBtn.addEventListener('click', handleStart);
   
   // Next level
   const nextBtn = document.getElementById('next-level-btn');
-  nextBtn.addEventListener('click', () => {
-    game.level++;
-    startGame();
-  });
-  nextBtn.addEventListener('touchend', (e) => {
+  nextBtn.addEventListener('click', (e) => {
     e.preventDefault();
     game.level++;
     startGame();
@@ -424,11 +419,7 @@ function setupEventListeners() {
 
   // Restart
   const restartBtn = document.getElementById('restart-btn');
-  restartBtn.addEventListener('click', () => {
-    game.level = 1;
-    startGame();
-  });
-  restartBtn.addEventListener('touchend', (e) => {
+  restartBtn.addEventListener('click', (e) => {
     e.preventDefault();
     game.level = 1;
     startGame();
@@ -436,19 +427,14 @@ function setupEventListeners() {
 
   // Retry
   const retryBtn = document.getElementById('retry-btn');
-  retryBtn.addEventListener('click', startGame);
-  retryBtn.addEventListener('touchend', (e) => {
+  retryBtn.addEventListener('click', (e) => {
     e.preventDefault();
     startGame();
   });
 
   // Menu
   const menuBtn = document.getElementById('menu-btn');
-  menuBtn.addEventListener('click', () => {
-    showScreen('start');
-    game.level = 1;
-  });
-  menuBtn.addEventListener('touchend', (e) => {
+  menuBtn.addEventListener('click', (e) => {
     e.preventDefault();
     showScreen('start');
     game.level = 1;
