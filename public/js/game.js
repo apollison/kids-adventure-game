@@ -390,52 +390,37 @@ function resizeCanvas() {
 function setupEventListeners() {
   // Character selection
   document.querySelectorAll('.character-btn').forEach(btn => {
-    const selectChar = (e) => {
-      e.preventDefault();
-      e.stopPropagation();
+    btn.addEventListener('click', () => {
       document.querySelectorAll('.character-btn').forEach(b => b.classList.remove('selected'));
       btn.classList.add('selected');
       game.selectedColor = btn.dataset.color;
-    };
-    btn.addEventListener('click', selectChar);
+    });
   });
 
-  // Start game - single unified handler
-  const startBtn = document.getElementById('start-btn');
-  const handleStart = (e) => {
-    e.preventDefault();
-    e.stopPropagation();
+  // Start game
+  document.getElementById('start-btn').addEventListener('click', () => {
     startGame();
-  };
-  startBtn.addEventListener('click', handleStart);
+  });
   
   // Next level
-  const nextBtn = document.getElementById('next-level-btn');
-  nextBtn.addEventListener('click', (e) => {
-    e.preventDefault();
+  document.getElementById('next-level-btn').addEventListener('click', () => {
     game.level++;
     startGame();
   });
 
   // Restart
-  const restartBtn = document.getElementById('restart-btn');
-  restartBtn.addEventListener('click', (e) => {
-    e.preventDefault();
+  document.getElementById('restart-btn').addEventListener('click', () => {
     game.level = 1;
     startGame();
   });
 
   // Retry
-  const retryBtn = document.getElementById('retry-btn');
-  retryBtn.addEventListener('click', (e) => {
-    e.preventDefault();
+  document.getElementById('retry-btn').addEventListener('click', () => {
     startGame();
   });
 
   // Menu
-  const menuBtn = document.getElementById('menu-btn');
-  menuBtn.addEventListener('click', (e) => {
-    e.preventDefault();
+  document.getElementById('menu-btn').addEventListener('click', () => {
     showScreen('start');
     game.level = 1;
   });
@@ -463,17 +448,10 @@ function setupEventListeners() {
     }
   });
 
-  // Touch controls on canvas
+  // Touch controls on canvas (only during gameplay)
   game.canvas.addEventListener('touchstart', handleTouchStart, { passive: false });
   game.canvas.addEventListener('touchmove', handleTouchMove, { passive: false });
   game.canvas.addEventListener('touchend', handleTouchEnd, { passive: false });
-
-  // Prevent page scrolling when game is active
-  document.body.addEventListener('touchmove', (e) => {
-    if (game.gameActive) {
-      e.preventDefault();
-    }
-  }, { passive: false });
 
   // Select first character by default
   document.querySelector('.character-btn').click();

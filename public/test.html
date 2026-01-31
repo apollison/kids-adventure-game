@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    button { padding: 20px; margin: 10px; font-size: 18px; }
+    .selected { background: yellow; }
+  </style>
+</head>
+<body>
+  <h1>Button Test</h1>
+  <button class="char-btn" data-color="purple">Purple</button>
+  <button class="char-btn" data-color="pink">Pink</button>
+  <br>
+  <button id="start">Start Game</button>
+  <div id="log"></div>
+  
+  <script>
+    const log = document.getElementById('log');
+    
+    document.querySelectorAll('.char-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.preventDefault();
+        log.innerHTML += '<br>Char clicked: ' + btn.dataset.color;
+        document.querySelectorAll('.char-btn').forEach(b => b.classList.remove('selected'));
+        btn.classList.add('selected');
+      });
+    });
+    
+    document.getElementById('start').addEventListener('click', (e) => {
+      e.preventDefault();
+      log.innerHTML += '<br>Start clicked!';
+    });
+  </script>
+</body>
+</html>
