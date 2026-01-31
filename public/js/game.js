@@ -32,6 +32,7 @@ const game = {
   timer: null,
   touchActive: false,
   touchStartX: 0,
+  touchStartTime: 0,
   lastTouchX: 0,
   isDragging: false
 };
@@ -433,6 +434,11 @@ function handleTouchStart(e) {
   const touchX = (touch.clientX - rect.left) * scaleX;
   const touchY = (touch.clientY - rect.top) * scaleY;
 
+  // Store initial touch for both drag and tap detection
+  game.touchStartX = touchX;
+  game.lastTouchX = touchX;
+  game.touchStartTime = Date.now();
+
   // Check if touching the butterfly
   const hitRadius = 80;
   const dx = touchX - (game.player.x + game.player.width / 2);
@@ -440,17 +446,9 @@ function handleTouchStart(e) {
   const distance = Math.sqrt(dx * dx + dy * dy);
 
   if (distance < hitRadius) {
-    // Dragging butterfly
+    // Potentially dragging butterfly
     game.isDragging = true;
     game.touchActive = true;
-    game.touchStartX = touchX;
-    game.lastTouchX = touchX;
-  } else {
-    // Tap anywhere else = jump
-    if (game.player.onGround) {
-      game.player.velocityY = CONFIG.jumpStrength;
-      game.player.onGround = false;
-    }
   }
 }
 
@@ -462,10 +460,24 @@ function handleTouchMove(e) {
   const rect = game.canvas.getBoundingClientRect();
   const scaleX = game.canvas.width / rect.width;
   game.lastTouchX = (touch.clientX - rect.left) * scaleX;
+  game.touchActive = true; // Confirm it's a drag, not a tap
 }
 
 function handleTouchEnd(e) {
   e.preventDefault();
+  
+  // If touch ended quickly without much movement = TAP (jump)
+  const touchDuration = Date.now() - (game.touchStartTime || 0);
+  const touchDistance = Math.abs(game.lastTouchX - game.touchStartX);
+  
+  if (touchDuration < 300 && touchDistance < 20) {
+    // This was a tap, not a drag - JUMP!
+    if (game.player && game.player.onGround) {
+      game.player.velocityY = CONFIG.jumpStrength;
+      game.player.onGround = false;
+    }
+  }
+  
   game.isDragging = false;
   game.touchActive = false;
 }
