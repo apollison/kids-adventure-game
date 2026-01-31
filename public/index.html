@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>🌟 Ava & Zoe's Adventure 🌟</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <div id="game-container">
+    <!-- Start Screen -->
+    <div id="start-screen" class="screen">
+      <h1 class="game-title">✨ Magical Garden Adventure ✨</h1>
+      <p class="subtitle">Help the butterfly collect all the flowers!</p>
+      <div class="character-select">
+        <h2>Choose Your Butterfly:</h2>
+        <div class="characters">
+          <button class="character-btn" data-color="purple">🦋 Purple</button>
+          <button class="character-btn" data-color="pink">🦋 Pink</button>
+          <button class="character-btn" data-color="blue">🦋 Blue</button>
+          <button class="character-btn" data-color="rainbow">🦋 Rainbow</button>
+        </div>
+      </div>
+      <button id="start-btn" class="btn-large">Start Adventure!</button>
+    </div>
+
+    <!-- Game Screen -->
+    <div id="game-screen" class="screen hidden">
+      <div id="hud">
+        <div class="hud-item">
+          <span class="label">Level:</span>
+          <span id="level-display">1</span>
+        </div>
+        <div class="hud-item">
+          <span class="label">Flowers:</span>
+          <span id="score-display">0</span>
+          <span>/</span>
+          <span id="target-score">10</span>
+        </div>
+        <div class="hud-item">
+          <span class="label">Time:</span>
+          <span id="timer-display">60</span>s
+        </div>
+      </div>
+      <canvas id="game-canvas"></canvas>
+      <div id="controls-hint">
+        <p>🎮 Controls: Arrow Keys or WASD to move • Space to jump</p>
+      </div>
+    </div>
+
+    <!-- Win Screen -->
+    <div id="win-screen" class="screen hidden">
+      <h1 class="celebrate">🎉 Amazing Job! 🎉</h1>
+      <div id="win-stats"></div>
+      <button id="next-level-btn" class="btn-large">Next Level!</button>
+      <button id="restart-btn" class="btn-secondary">Play Again</button>
+    </div>
+
+    <!-- Game Over Screen -->
+    <div id="gameover-screen" class="screen hidden">
+      <h1 class="gameover-title">Time's Up! 💫</h1>
+      <div id="gameover-stats"></div>
+      <button id="retry-btn" class="btn-large">Try Again!</button>
+      <button id="menu-btn" class="btn-secondary">Main Menu</button>
+    </div>
+  </div>
+
+  <script src="js/game.js"></script>
+</body>
+</html>

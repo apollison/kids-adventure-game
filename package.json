@@ -1,0 +1,15 @@
+{
+  "name": "kids-adventure-game",
+  "version": "1.0.0",
+  "description": "Fun platformer game for Ava and Zoe",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "keywords": ["game", "kids", "platformer"],
+  "author": "Roger",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.18.2"
+  }
+}
