@@ -19,9 +19,15 @@ body {
   background: var(--bg-gradient);
   overflow: hidden;
   height: 100vh;
+  width: 100vw;
   display: flex;
   justify-content: center;
   align-items: center;
+  position: fixed;
+  top: 0;
+  left: 0;
+  margin: 0;
+  padding: 0;
 }
 
 #game-container {
@@ -155,6 +161,7 @@ body {
   background: var(--sky);
   padding: 0;
   justify-content: flex-start;
+  overflow: hidden;
 }
 
 #hud {

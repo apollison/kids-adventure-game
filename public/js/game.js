@@ -81,7 +81,8 @@ class Player {
     }
 
     // Jumping (keyboard or touch tap)
-    if ((game.keys[' '] || game.keys['ArrowUp'] || game.keys['w'] || game.keys['W']) && this.onGround) {
+    const jumpKey = game.keys[' '] || game.keys['ArrowUp'] || game.keys['w'] || game.keys['W'] || game.keys['Spacebar'];
+    if (jumpKey && this.onGround) {
       this.velocityY = CONFIG.jumpStrength;
       this.onGround = false;
     }
@@ -367,10 +368,22 @@ function init() {
 }
 
 function resizeCanvas() {
+  const hud = document.getElementById('hud');
+  const hint = document.getElementById('controls-hint');
+  const hudHeight = hud ? hud.offsetHeight : 0;
+  const hintHeight = hint ? hint.offsetHeight : 0;
+  
   game.canvas.width = window.innerWidth;
-  game.canvas.height = window.innerHeight - 140; // Account for HUD and controls
+  game.canvas.height = window.innerHeight - hudHeight - hintHeight;
   game.width = game.canvas.width;
   game.height = game.canvas.height;
+  
+  // Reposition player if off screen
+  if (game.player) {
+    if (game.player.y + game.player.height > game.height - 50) {
+      game.player.y = game.height - 200;
+    }
+  }
 }
 
 function setupEventListeners() {
@@ -410,7 +423,10 @@ function setupEventListeners() {
   // Keyboard controls
   window.addEventListener('keydown', e => {
     game.keys[e.key] = true;
-    if (e.key === ' ') e.preventDefault();
+    // Prevent space bar from scrolling page
+    if (e.key === ' ' || e.key === 'ArrowUp' || e.key === 'ArrowDown') {
+      e.preventDefault();
+    }
   });
 
   window.addEventListener('keyup', e => {
@@ -439,11 +455,13 @@ function handleTouchStart(e) {
 
   const touch = e.touches[0];
   const rect = game.canvas.getBoundingClientRect();
-  const touchX = touch.clientX - rect.left;
-  const touchY = touch.clientY - rect.top;
+  const scaleX = game.canvas.width / rect.width;
+  const scaleY = game.canvas.height / rect.height;
+  const touchX = (touch.clientX - rect.left) * scaleX;
+  const touchY = (touch.clientY - rect.top) * scaleY;
 
   // Check if touching the butterfly (with larger hit area for kids)
-  const hitRadius = 60; // Generous hit area
+  const hitRadius = 80; // Very generous hit area
   const dx = touchX - (game.player.x + game.player.width / 2);
   const dy = touchY - (game.player.y + game.player.height / 2);
   const distance = Math.sqrt(dx * dx + dy * dy);
@@ -471,8 +489,10 @@ function handleTouchMove(e) {
 
   const touch = e.touches[0];
   const rect = game.canvas.getBoundingClientRect();
-  game.lastTouchX = touch.clientX - rect.left;
-  game.lastTouchY = touch.clientY - rect.top;
+  const scaleX = game.canvas.width / rect.width;
+  const scaleY = game.canvas.height / rect.height;
+  game.lastTouchX = (touch.clientX - rect.left) * scaleX;
+  game.lastTouchY = (touch.clientY - rect.top) * scaleY;
 }
 
 function handleTouchEnd(e) {
