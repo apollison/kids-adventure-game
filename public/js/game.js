@@ -51,11 +51,11 @@ class Player {
   }
 
   update() {
-    // Touch/drag controls
-    if (game.isDragging && game.touchActive) {
+    // Touch/drag controls - move based on drag direction
+    if (game.touchActive && game.isDragging) {
       const dragDeltaX = game.lastTouchX - game.touchStartX;
       
-      if (Math.abs(dragDeltaX) > 5) {
+      if (Math.abs(dragDeltaX) > 10) { // Small dead zone
         if (dragDeltaX < 0) {
           this.velocityX = -CONFIG.moveSpeed;
           this.facing = -1;
@@ -63,6 +63,8 @@ class Player {
           this.velocityX = CONFIG.moveSpeed;
           this.facing = 1;
         }
+      } else {
+        this.velocityX *= 0.8; // Friction in dead zone
       }
     } 
     // Keyboard controls
@@ -435,40 +437,31 @@ function handleTouchStart(e) {
   const touch = e.touches[0];
   const rect = game.canvas.getBoundingClientRect();
   const scaleX = game.canvas.width / rect.width;
-  const scaleY = game.canvas.height / rect.height;
   const touchX = (touch.clientX - rect.left) * scaleX;
-  const touchY = (touch.clientY - rect.top) * scaleY;
 
-  // Store initial touch
+  // Store initial touch position
   game.touchStartX = touchX;
   game.lastTouchX = touchX;
+  game.touchActive = true;
 
-  // Check if touching the butterfly - if so, enable dragging
-  const hitRadius = 80;
-  const dx = touchX - (game.player.x + game.player.width / 2);
-  const dy = touchY - (game.player.y + game.player.height / 2);
-  const distance = Math.sqrt(dx * dx + dy * dy);
-
-  if (distance < hitRadius) {
-    game.isDragging = true;
-    game.touchActive = true;
-  } else {
-    // Not on butterfly - just jump immediately
-    if (game.player.onGround) {
-      game.player.velocityY = CONFIG.jumpStrength;
-      game.player.onGround = false;
-    }
+  // Tap = jump (will cancel if user drags)
+  if (game.player.onGround) {
+    game.player.velocityY = CONFIG.jumpStrength;
+    game.player.onGround = false;
   }
 }
 
 function handleTouchMove(e) {
   e.preventDefault();
-  if (!game.gameActive || !game.isDragging) return;
+  if (!game.gameActive || !game.touchActive) return;
 
   const touch = e.touches[0];
   const rect = game.canvas.getBoundingClientRect();
   const scaleX = game.canvas.width / rect.width;
   game.lastTouchX = (touch.clientX - rect.left) * scaleX;
+  
+  // Mark as dragging once moved
+  game.isDragging = true;
 }
 
 function handleTouchEnd(e) {
