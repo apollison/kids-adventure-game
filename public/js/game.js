@@ -523,22 +523,27 @@ function generateLevel() {
   // Generate platforms with guaranteed reachability
   const platformCount = 5 + game.level * 2;
   const maxJumpHeight = 200; // Maximum vertical distance butterfly can jump
-  const maxHorizontalGap = 250; // Maximum horizontal gap
   
   let lastY = game.height - 50; // Start from ground
   
   for (let i = 0; i < platformCount; i++) {
-    // Horizontal position - evenly spaced with some randomness
+    // Platform width first, so we can account for it in positioning
+    const width = 100 + Math.random() * 80;
+    
+    // Horizontal position - evenly spaced with some randomness, but stay on screen
     const baseX = (i + 1) * (game.width / (platformCount + 1));
-    const x = baseX + (Math.random() - 0.5) * 100;
+    const randomOffset = (Math.random() - 0.5) * 100;
+    let x = baseX + randomOffset - width / 2;
+    
+    // Clamp to screen bounds
+    x = Math.max(0, Math.min(x, game.width - width));
     
     // Vertical position - ensure it's reachable from previous platform
     const minY = Math.max(100, lastY - maxJumpHeight + 50);
     const maxY = Math.min(game.height - 100, lastY + 50);
     const y = minY + Math.random() * (maxY - minY);
     
-    const width = 100 + Math.random() * 80;
-    game.platforms.push(new Platform(x - width / 2, y, width));
+    game.platforms.push(new Platform(x, y, width));
     lastY = y;
   }
 
