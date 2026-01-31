@@ -390,33 +390,66 @@ function resizeCanvas() {
 function setupEventListeners() {
   // Character selection
   document.querySelectorAll('.character-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
+    const selectChar = () => {
       document.querySelectorAll('.character-btn').forEach(b => b.classList.remove('selected'));
       btn.classList.add('selected');
       game.selectedColor = btn.dataset.color;
+    };
+    btn.addEventListener('click', selectChar);
+    btn.addEventListener('touchend', (e) => {
+      e.preventDefault();
+      selectChar();
     });
   });
 
   // Start game
-  document.getElementById('start-btn').addEventListener('click', startGame);
+  const startBtn = document.getElementById('start-btn');
+  startBtn.addEventListener('click', startGame);
+  startBtn.addEventListener('touchend', (e) => {
+    e.preventDefault();
+    startGame();
+  });
   
   // Next level
-  document.getElementById('next-level-btn').addEventListener('click', () => {
+  const nextBtn = document.getElementById('next-level-btn');
+  nextBtn.addEventListener('click', () => {
+    game.level++;
+    startGame();
+  });
+  nextBtn.addEventListener('touchend', (e) => {
+    e.preventDefault();
     game.level++;
     startGame();
   });
 
   // Restart
-  document.getElementById('restart-btn').addEventListener('click', () => {
+  const restartBtn = document.getElementById('restart-btn');
+  restartBtn.addEventListener('click', () => {
+    game.level = 1;
+    startGame();
+  });
+  restartBtn.addEventListener('touchend', (e) => {
+    e.preventDefault();
     game.level = 1;
     startGame();
   });
 
   // Retry
-  document.getElementById('retry-btn').addEventListener('click', startGame);
+  const retryBtn = document.getElementById('retry-btn');
+  retryBtn.addEventListener('click', startGame);
+  retryBtn.addEventListener('touchend', (e) => {
+    e.preventDefault();
+    startGame();
+  });
 
   // Menu
-  document.getElementById('menu-btn').addEventListener('click', () => {
+  const menuBtn = document.getElementById('menu-btn');
+  menuBtn.addEventListener('click', () => {
+    showScreen('start');
+    game.level = 1;
+  });
+  menuBtn.addEventListener('touchend', (e) => {
+    e.preventDefault();
     showScreen('start');
     game.level = 1;
   });

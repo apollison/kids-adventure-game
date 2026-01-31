@@ -57,37 +57,39 @@ body {
 }
 
 .game-title {
-  font-size: 3.5rem;
+  font-size: 2.5rem;
   color: white;
   text-shadow: 0 0 20px rgba(255,255,255,0.5), 0 4px 8px rgba(0,0,0,0.3);
-  margin-bottom: 1rem;
+  margin-bottom: 0.5rem;
   animation: float 3s ease-in-out infinite;
 }
 
 @keyframes float {
   0%, 100% { transform: translateY(0px); }
-  50% { transform: translateY(-20px); }
+  50% { transform: translateY(-10px); }
 }
 
 .subtitle {
-  font-size: 1.5rem;
+  font-size: 1.2rem;
   color: #fff;
-  margin-bottom: 2rem;
+  margin-bottom: 1rem;
   text-shadow: 0 2px 4px rgba(0,0,0,0.3);
 }
 
 .character-select {
   background: rgba(255,255,255,0.2);
-  padding: 2rem;
-  border-radius: 20px;
-  margin-bottom: 2rem;
+  padding: 1rem;
+  border-radius: 15px;
+  margin-bottom: 1rem;
   backdrop-filter: blur(10px);
+  width: 90%;
+  max-width: 400px;
 }
 
 .character-select h2 {
   color: white;
-  font-size: 1.8rem;
-  margin-bottom: 1.5rem;
+  font-size: 1.3rem;
+  margin-bottom: 1rem;
   text-align: center;
 }
 
@@ -98,47 +100,52 @@ body {
 }
 
 .character-btn {
-  font-size: 2rem;
-  padding: 1.5rem 2rem;
-  border: 4px solid white;
-  border-radius: 15px;
+  font-size: 1.5rem;
+  padding: 1rem 1.5rem;
+  border: 3px solid white;
+  border-radius: 12px;
   background: rgba(255,255,255,0.3);
   cursor: pointer;
   transition: all 0.3s;
   color: white;
   font-weight: bold;
   text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
 }
 
-.character-btn:hover {
-  transform: scale(1.1) rotate(5deg);
-  box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+.character-btn:hover, .character-btn:active {
+  transform: scale(1.05);
+  box-shadow: 0 8px 20px rgba(0,0,0,0.3);
 }
 
 .character-btn.selected {
   background: rgba(255,255,255,0.6);
-  transform: scale(1.15);
+  transform: scale(1.1);
   box-shadow: 0 0 30px rgba(255,255,255,0.8);
 }
 
 .btn-large {
-  font-size: 2rem;
-  padding: 1.5rem 3rem;
+  font-size: 1.5rem;
+  padding: 1rem 2rem;
   background: linear-gradient(45deg, #ff6b6b, #ee5a6f);
   color: white;
   border: none;
   border-radius: 50px;
   cursor: pointer;
   font-weight: bold;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+  box-shadow: 0 8px 20px rgba(0,0,0,0.3);
   transition: all 0.3s;
   text-transform: uppercase;
   letter-spacing: 2px;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+  margin-top: 0.5rem;
 }
 
-.btn-large:hover {
-  transform: translateY(-5px) scale(1.05);
-  box-shadow: 0 15px 40px rgba(0,0,0,0.4);
+.btn-large:hover, .btn-large:active {
+  transform: translateY(-3px) scale(1.03);
+  box-shadow: 0 12px 30px rgba(0,0,0,0.4);
 }
 
 .btn-secondary {
