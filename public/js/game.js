@@ -32,8 +32,10 @@ const game = {
   timer: null,
   touchActive: false,
   touchStartX: 0,
+  touchStartTime: 0,
   lastTouchX: 0,
-  isDragging: false
+  isDragging: false,
+  jumpTriggered: false
 };
 
 // Player class
@@ -443,12 +445,8 @@ function handleTouchStart(e) {
   game.touchStartX = touchX;
   game.lastTouchX = touchX;
   game.touchActive = true;
-
-  // Tap = jump (will cancel if user drags)
-  if (game.player.onGround) {
-    game.player.velocityY = CONFIG.jumpStrength;
-    game.player.onGround = false;
-  }
+  game.touchStartTime = Date.now();
+  game.jumpTriggered = false;
 }
 
 function handleTouchMove(e) {
@@ -466,8 +464,21 @@ function handleTouchMove(e) {
 
 function handleTouchEnd(e) {
   e.preventDefault();
+  
+  // If touch ended quickly without dragging = TAP = JUMP
+  const touchDuration = Date.now() - game.touchStartTime;
+  const touchDistance = Math.abs(game.lastTouchX - game.touchStartX);
+  
+  if (!game.jumpTriggered && touchDuration < 200 && touchDistance < 15) {
+    if (game.player && game.player.onGround) {
+      game.player.velocityY = CONFIG.jumpStrength;
+      game.player.onGround = false;
+    }
+  }
+  
   game.isDragging = false;
   game.touchActive = false;
+  game.jumpTriggered = false;
 }
 
 function startGame() {
