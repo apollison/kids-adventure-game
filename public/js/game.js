@@ -116,9 +116,13 @@ class Player {
   }
 
   collidesWith(obj) {
-    return this.x < obj.x + obj.width &&
+    // Handle objects with either width/height or size
+    const objWidth = obj.width || obj.size || 0;
+    const objHeight = obj.height || obj.size || 0;
+    
+    return this.x < obj.x + objWidth &&
            this.x + this.width > obj.x &&
-           this.y < obj.y + obj.height &&
+           this.y < obj.y + objHeight &&
            this.y + this.height > obj.y;
   }
 
